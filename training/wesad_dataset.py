@@ -4,6 +4,11 @@ import numpy as np
 import pickle
 import os
 from utils.config import FS_ECG, FS_EDA, FS_ACC
+from preprocessing.ecg_preprocessing_pan_tompkins import pan_tompkins_detector
+from preprocessing.ecg_hrv_extraction import compute_rr_intervals
+from preprocessing.eda_preprocessing_cvxeda import eda_preprocessing
+from preprocessing.acc_preprocessing_filtering import preprocess_accelerometer
+from preprocessing.acc_statistical_features import extract_acc_features
 
 class WESADDataset(Dataset):
     """
@@ -113,14 +118,6 @@ class WESADDataset(Dataset):
         return self.preprocess_sample(self.samples[idx])
 
     def preprocess_sample(self, sample):
-        # Imports here to avoid circular dependencies if any
-        # Assuming packages are initialized
-        from preprocessing.ecg_preprocessing_pan_tompkins import pan_tompkins_detector
-        from preprocessing.ecg_hrv_extraction import compute_rr_intervals
-        from preprocessing.eda_preprocessing_cvxeda import eda_preprocessing
-        from preprocessing.acc_preprocessing_filtering import preprocess_accelerometer
-        from preprocessing.acc_statistical_features import extract_acc_features
-        
         # 1. ECG
         _, r_peaks = pan_tompkins_detector(sample['ecg'], FS_ECG)
         rr_intervals = compute_rr_intervals(r_peaks, FS_ECG) 

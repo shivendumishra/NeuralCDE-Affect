@@ -102,6 +102,47 @@ class AffectiveRoadDataset(Dataset):
             except Exception as e:
                 print(f"Error: {e}")
 
+        # Drive-wide Normalization Stats
+        if self.samples:
+            print("Calculating normalization stats for AffectiveRoad...")
+            all_ibi = np.concatenate([s['ibi'] for s in self.samples])
+            all_eda = np.concatenate([s['eda'] for s in self.samples]) # This is raw EDA, but we need stats for phasic/tonic
+            # Actually, it's better to compute stats on the final features
+            
+            # We'll compute stats on the fly for the first 50 samples to get a good estimate
+            # or just process all since it's a small dataset
+            all_ecg_feats = []
+            all_eda_feats = []
+            all_acc_feats = []
+            
+            from preprocessing.eda_preprocessing_cvxeda import eda_preprocessing
+            from preprocessing.acc_preprocessing_filtering import preprocess_accelerometer
+            from preprocessing.acc_statistical_features import extract_acc_features
+            
+            for s in self.samples[:100]: # Sample 100 for speed
+                _, phasic, tonic = eda_preprocessing(s['eda'], 4.0)
+                mag = preprocess_accelerometer(s['acc'], 32.0)
+                acc_f = []
+                for i in range(0, len(mag), 32):
+                    w = mag[i:i+32]
+                    if len(w) < 32: break
+                    f = extract_acc_features(w)
+                    acc_f.append([f['acc_mean'], f['acc_var'], f['acc_energy'], f['acc_entropy']])
+                
+                all_ecg_feats.append(s['ibi'].reshape(-1, 1))
+                all_eda_feats.append(np.stack([phasic, tonic], axis=1))
+                if acc_f: all_acc_feats.append(np.array(acc_f))
+                
+            self.stats = {
+                'ecg_m': np.mean(np.concatenate(all_ecg_feats), axis=0),
+                'ecg_s': np.std(np.concatenate(all_ecg_feats), axis=0) + 1e-8,
+                'eda_m': np.mean(np.concatenate(all_eda_feats), axis=0),
+                'eda_s': np.std(np.concatenate(all_eda_feats), axis=0) + 1e-8,
+                'acc_m': np.mean(np.concatenate(all_acc_feats), axis=0),
+                'acc_s': np.std(np.concatenate(all_acc_feats), axis=0) + 1e-8
+            }
+            print("Normalization stats computed.")
+
     def __len__(self):
         return len(self.samples)
 
@@ -121,6 +162,11 @@ class AffectiveRoadDataset(Dataset):
             f = extract_acc_features(w)
             acc_feats.append([f['acc_mean'], f['acc_var'], f['acc_energy'], f['acc_entropy']])
             
+        # Apply Normalization
+        ecg_norm = (sample['ibi'].reshape(-1, 1) - self.stats['ecg_m']) / self.stats['ecg_s']
+        eda_norm = (np.stack([phasic, tonic], axis=1) - self.stats['eda_m']) / self.stats['eda_s']
+        acc_norm = (np.array(acc_feats) - self.stats['acc_m']) / self.stats['acc_s']
+
         # Compute Coefficients for CDE
         import torchcde
         from normalization.intensity_channel import add_intensity_channel
@@ -132,8 +178,8 @@ class AffectiveRoadDataset(Dataset):
             return torchcde.natural_cubic_coeffs(d_in).squeeze(0)
             
         return {
-            'ecg_coeffs': build_coeffs(sample['ibi'].reshape(-1, 1), sample['ibi_times']),
-            'eda_coeffs': build_coeffs(np.stack([phasic, tonic], axis=1), np.arange(len(phasic))/4.0),
-            'acc_coeffs': build_coeffs(np.array(acc_feats), np.arange(len(acc_feats))),
+            'ecg_coeffs': build_coeffs(ecg_norm, sample['ibi_times']),
+            'eda_coeffs': build_coeffs(eda_norm, np.arange(len(phasic))/4.0),
+            'acc_coeffs': build_coeffs(acc_norm, np.arange(len(acc_norm))),
             'label': sample['label']
         }

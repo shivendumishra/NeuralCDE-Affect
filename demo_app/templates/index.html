@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Detection Model Demo</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="/static/chart.js"></script>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <header>
+            <h1>Stress Detection <span class="gradient-text">AI Demo</span></h1>
+            <p class="subtitle">Real-time Multimodal Affective State Prediction</p>
+        </header>
+
+        <section class="dashboard">
+            <div class="sidebar">
+                <div class="card glass">
+                    <h3>Select Sample</h3>
+                    <div id="sample-list" class="sample-list">
+                        <!-- Samples will be loaded here -->
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="prediction-row">
+                    <div class="card glass prediction-card">
+                        <h3>Model Prediction</h3>
+                        <div id="prediction-result" class="prediction-result">
+                            <span class="placeholder-text">Select a sample to run inference</span>
+                        </div>
+                        <div class="confidence-container">
+                            <div class="confidence-bar-wrapper">
+                                <div id="confidence-bar" class="confidence-bar"></div>
+                            </div>
+                            <span id="confidence-text"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass chart-card">
+                    <h3>Signal Visualization</h3>
+                    <div class="chart-container">
+                        <canvas id="signalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
