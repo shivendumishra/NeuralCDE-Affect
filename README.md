@@ -18,6 +18,9 @@ Traditional emotion recognition models (RNNs, LSTMs) struggle with **irregularly
 *   ✅ **Superior accuracy** (91.2% on WESAD dataset) compared to discrete-time baselines.
 
 > **⚠️ Note**: This repository represents **personal research work** conducted as part of a Master's Thesis. The findings and methodology are currently **under review** and are intended for future publication in a peer-reviewed journal. Please treat this as a pre-print / work-in-progress.
+>
+> **© Copyright 2025 Shivendu Mishra. All Rights Reserved.**
+> This work is the intellectual property of the author. Unauthorized copying, distribution, or modification of this code or thesis content is strictly prohibited.
 
 ---
 
