@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 # Add project root to path
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT_ROOT)
 
 from utils.config import FS_ECG, FS_EDA, FS_ACC

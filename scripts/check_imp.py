@@ -1,7 +1,7 @@
 import os
 import sys
 
-current = os.path.dirname(os.path.abspath(__file__))
+current = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(current)
 
 print(f"CWD: {os.getcwd()}")

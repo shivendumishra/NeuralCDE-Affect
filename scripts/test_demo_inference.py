@@ -4,7 +4,7 @@ import torch
 import numpy as np
 
 # Add project root to path
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
 from training.train_loso import FullPipelineModel
